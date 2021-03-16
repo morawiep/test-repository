@@ -6,13 +6,13 @@ class Item(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument('price',
         type=float,
-        required = True,
-        help="This field cannt be left blank"
+        required=True,
+        help="This field cannot be left blank!"
     )
     parser.add_argument('store_id',
         type=int,
-        required = True,
-        help="Every item needs a store id"
+        required=True,
+        help="Every item needs a store id."
     )
 
     @jwt_required()
@@ -24,21 +24,20 @@ class Item(Resource):
 
     def post(self, name):
         if ItemModel.find_by_name(name):
-            return {'message': "An item with name '{}' already exist".format(name)}, 400
+            return {'message': "An item with name '{}' already exists.".format(name)}, 400
 
         data = Item.parser.parse_args()
-        print(data)
+
         item = ItemModel(name, **data)
 
         try:
             item.save_to_db()
         except:
-            return {"message": "An error occured inserting the item"}, 500
+            return {"message": "An error occurred inserting the item."}, 500
 
         return item.json(), 201
 
-
-    def delete(self,name):
+    def delete(self, name):
         item = ItemModel.find_by_name(name)
         if item:
             item.delete_from_db()
@@ -49,16 +48,17 @@ class Item(Resource):
         data = Item.parser.parse_args()
 
         item = ItemModel.find_by_name(name)
+
         if item is None:
             item = ItemModel(name, **data)
-
         else:
             item.price = data['price']
+
         item.save_to_db()
+
         return item.json()
 
 
 class ItemList(Resource):
     def get(self):
-        return {'items': list(map(lambda x: x.json(), ItemModel.query.all()))}
-        #return {'items': [item.json() for item in ItemModel.query.all()]}
+        return {'items': [x.json() for x in ItemModel.query.all()]}
